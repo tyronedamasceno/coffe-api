@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -23,3 +25,8 @@ class Harvest(models.Model):
 
     def __str__(self):
         return f'{self.coffe_type}/{self.date.year}'
+
+    @property
+    def expired(self):
+        days_since_harvest = (datetime.now().date() - self.date).days
+        return days_since_harvest > self.coffe_type.expiration_time

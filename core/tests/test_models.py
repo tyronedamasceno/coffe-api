@@ -35,3 +35,24 @@ class CoffeModelsTestCase(TestCase):
         self.assertEqual(CoffeType.objects.count(), 2)
         self.assertEqual(Harvest.objects.count(), 2)
         self.assertEqual(self.default_user.harvests.count(), 2)
+
+    def test_check_coffe_expiration_time(self):
+        """Test the coffe lifetime checking"""
+        conilon = CoffeType.objects.create(name='Conilon', expiration_time=10)
+
+        non_expired_date = datetime.now() - timedelta(days=9)
+        expired_date = datetime.now() - timedelta(days=11)
+
+        Harvest.objects.create(
+            farm='Fazendinha', bags=500, date=non_expired_date,
+            coffe_type=conilon, owner=self.default_user
+        )
+
+        Harvest.objects.create(
+            farm='Fazendinha', bags=500, date=expired_date,
+            coffe_type=conilon, owner=self.default_user
+        )
+
+        harvests = Harvest.objects.all()
+        non_expired_harvests = len([h for h in harvests if not h.expired])
+        self.assertEqual(non_expired_harvests, 1)
