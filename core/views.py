@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework import viewsets
 
-# Create your views here.
+from core.models import CoffeType
+from core.serializers import CoffeTypeSerializer
+
+
+class CoffeTypeViewSet(viewsets.ModelViewSet):
+    serializer_class = CoffeTypeSerializer
+    queryset = CoffeType.objects.all()
