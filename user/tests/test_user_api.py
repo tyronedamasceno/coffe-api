@@ -9,7 +9,7 @@ from rest_framework import status
 
 
 USER_API_URL = reverse('user:users-list')
-LOGIN_URL = reverse('user:login')
+LOGIN_URL = '/api/v1/login/'
 
 
 def create_user(**kwargs):

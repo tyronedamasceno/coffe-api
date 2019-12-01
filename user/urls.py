@@ -12,5 +12,4 @@ app_name = 'user'
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('login/', views.CreateTokenView.as_view(), name='login')
 ]
