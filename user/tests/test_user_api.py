@@ -9,7 +9,7 @@ from rest_framework import status
 
 
 USER_API_URL = reverse('user:users-list')
-TOKEN_URL = reverse('user:token-list')
+LOGIN_URL = reverse('user:login')
 
 
 def create_user(**kwargs):
@@ -48,7 +48,7 @@ class PublicUserApiTests(TestCase):
         """Test that a token is created for the user"""
         create_user(**self.payload_default)
 
-        response = self.client.post(TOKEN_URL, self.payload_default)
+        response = self.client.post(LOGIN_URL, self.payload_default)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('token', response.data)
@@ -59,14 +59,14 @@ class PublicUserApiTests(TestCase):
         bad_payload = copy(self.payload_default)
         bad_payload['password'] = 'wrong_pass'
 
-        response = self.client.post(TOKEN_URL, bad_payload)
+        response = self.client.post(LOGIN_URL, bad_payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotIn('token', response.data)
 
         inexisting_payload = copy(self.payload_default)
         inexisting_payload['email'] = 'wrong@coffeapi.com'
 
-        response = self.client.post(TOKEN_URL, inexisting_payload)
+        response = self.client.post(LOGIN_URL, inexisting_payload)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertNotIn('token', response.data)
 
@@ -79,6 +79,6 @@ class PublicUserApiTests(TestCase):
         no_password['password'] = ''
 
         for payload in (no_email, no_password):
-            response = self.client.post(TOKEN_URL, payload)
+            response = self.client.post(LOGIN_URL, payload)
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
             self.assertNotIn('token', response.data)
