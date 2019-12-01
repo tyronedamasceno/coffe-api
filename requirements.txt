@@ -4,6 +4,7 @@ Django==2.2.7
 djangorestframework==3.10.3
 entrypoints==0.3
 flake8==3.7.9
+freezegun==0.3.12
 ipdb==0.12.2
 ipython==7.10.0
 ipython-genutils==0.2.0
