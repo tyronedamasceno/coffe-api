@@ -7,6 +7,7 @@ from core import views
 
 router = routers.DefaultRouter()
 router.register('coffe_types', views.CoffeTypeViewSet, base_name='coffe_types')
+router.register('harvests', views.HarvestViewSet, base_name='harvests')
 
 app_name = 'core'
 

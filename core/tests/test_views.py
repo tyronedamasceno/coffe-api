@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -5,23 +7,24 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from core.models import CoffeType
-from core.serializers import CoffeTypeSerializer
+from freezegun import freeze_time
+
+from core.models import CoffeType, Harvest
+from core.serializers import CoffeTypeSerializer, HarvestSerializer
 
 COFFE_TYPE_URL = reverse('core:coffe_types-list')
+HARVEST_URL = reverse('core:harvests-list')
 LOGIN_URL = '/api/v1/login/'
 
 
-class CoffeTypeTestCase(TestCase):
-    def do_login(self):
-        credentials = {
-            'email': 'tyrone@coffeapi.com',
-            'password': 'password'
-        }
-        get_user_model().objects.create_user(**credentials)
-        response = self.client.post(LOGIN_URL, credentials)
-        return response.data.get('token')
+def perform_login(email, password, api_client):
+    credentials = {'email': email, 'password': password}
+    get_user_model().objects.create_user(**credentials)
+    response = api_client.post(LOGIN_URL, credentials)
+    return response.data.get('token')
 
+
+class CoffeTypeTestCase(TestCase):
     def setUp(self):
         self.coffe_type_a = CoffeType.objects.create(
             name='a', expiration_time=5
@@ -30,7 +33,9 @@ class CoffeTypeTestCase(TestCase):
             name='b', expiration_time=5
         )
         self.client = APIClient()
-        self.token = self.do_login()
+        self.token = perform_login(
+            'tyrone@coffeapi.com', 'password', self.client
+        )
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
 
     def test_endpoint_requires_authentication_token(self):
@@ -74,3 +79,41 @@ class CoffeTypeTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         coffe_type = CoffeType.objects.filter(id=self.coffe_type_a.id).first()
         self.assertIsNone(coffe_type)
+
+
+@freeze_time('2019-12-01')
+class HarvestTestCase(TestCase):
+    def setUp(self):
+        self.coffe_type = CoffeType.objects.create(name='x', expiration_time=5)
+        self.client = APIClient()
+        self.token = perform_login(
+            'tyrone@coffeapi.com', 'password', self.client
+        )
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+
+    def test_listing_only_own_harvests(self):
+        user1 = get_user_model().objects.get(email='tyrone@coffeapi.com')
+        user2 = get_user_model().objects.create_user(
+            email='other_user@coffeapi.com', password='secret_password'
+        )
+
+        date_ = datetime(2019, 11, 25).date()
+        h1 = Harvest.objects.create(
+            farm='Fazendinha', bags=500, date=date_,
+            coffe_type=self.coffe_type, owner=user1
+        )
+        h2 = Harvest.objects.create(
+            farm='Fazendona', bags=1000, date=date_,
+            coffe_type=self.coffe_type, owner=user1
+        )
+        h3 = Harvest.objects.create(
+            farm='Fazenda', bags=750, date=date_, coffe_type=self.coffe_type,
+            owner=user2
+        )
+
+        response = self.client.get(HARVEST_URL)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(HarvestSerializer(h1).data, response.data)
+        self.assertIn(HarvestSerializer(h2).data, response.data)
+        self.assertNotIn(HarvestSerializer(h3).data, response.data)

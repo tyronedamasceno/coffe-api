@@ -13,5 +13,5 @@ class CoffeTypeSerializer(serializers.ModelSerializer):
 class HarvestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Harvest
-        fields = ('id', 'farm', 'bags', 'coffe_type', 'owner', 'expired')
+        fields = ('id', 'farm', 'bags', 'date', 'coffe_type', 'owner')
         read_only_fields = ('id', )
