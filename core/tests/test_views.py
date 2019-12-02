@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
@@ -8,9 +9,19 @@ from core.models import CoffeType
 from core.serializers import CoffeTypeSerializer
 
 COFFE_TYPE_URL = reverse('core:coffe_types-list')
+LOGIN_URL = '/api/v1/login/'
 
 
 class CoffeTypeTestCase(TestCase):
+    def do_login(self):
+        credentials = {
+            'email': 'tyrone@coffeapi.com',
+            'password': 'password'
+        }
+        get_user_model().objects.create_user(**credentials)
+        response = self.client.post(LOGIN_URL, credentials)
+        return response.data.get('token')
+
     def setUp(self):
         self.coffe_type_a = CoffeType.objects.create(
             name='a', expiration_time=5
@@ -19,6 +30,13 @@ class CoffeTypeTestCase(TestCase):
             name='b', expiration_time=5
         )
         self.client = APIClient()
+        self.token = self.do_login()
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token)
+
+    def test_endpoint_requires_authentication_token(self):
+        unauthenticated_client = APIClient()
+        response = unauthenticated_client.get(COFFE_TYPE_URL)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_listing_all_coffe_types(self):
         response = self.client.get(COFFE_TYPE_URL)

@@ -5,11 +5,13 @@ from rest_framework.response import Response
 
 from user.models import User
 from user.serializers import UserSerializer, AuthTokenSerializer
+from user.permissions import RetrieveAndUpdateItsOwnUser
 
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = (RetrieveAndUpdateItsOwnUser, )
 
 
 class CustomAuthToken(ObtainAuthToken):
@@ -24,7 +26,6 @@ class CustomAuthToken(ObtainAuthToken):
 
         user = serializer.validated_data['user']
         token, _ = Token.objects.get_or_create(user=user)
-
         return Response({'token': token.key})
 
 
