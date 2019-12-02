@@ -15,3 +15,11 @@ class HarvestSerializer(serializers.ModelSerializer):
         model = Harvest
         fields = ('id', 'farm', 'bags', 'date', 'coffe_type', 'owner')
         read_only_fields = ('id', )
+
+
+class StorageReportSerializer(serializers.Serializer):
+    total_bags = serializers.IntegerField()
+    non_expired_bags = serializers.IntegerField()
+    expired_bags = serializers.IntegerField()
+    origin_farms = serializers.ListField()
+    coffe_types = serializers.ListField()

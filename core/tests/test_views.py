@@ -14,6 +14,7 @@ from core.serializers import CoffeTypeSerializer, HarvestSerializer
 
 COFFE_TYPE_URL = reverse('core:coffe_types-list')
 HARVEST_URL = reverse('core:harvests-list')
+STORAGE_REPORT_URL = reverse('core:storage_report-list')
 LOGIN_URL = '/api/v1/login/'
 
 
@@ -117,3 +118,43 @@ class HarvestTestCase(TestCase):
         self.assertIn(HarvestSerializer(h1).data, response.data)
         self.assertIn(HarvestSerializer(h2).data, response.data)
         self.assertNotIn(HarvestSerializer(h3).data, response.data)
+
+    def test_get_storage_report(self):
+        user1 = get_user_model().objects.get(email='tyrone@coffeapi.com')
+        coffe_type_2 = CoffeType.objects.create(name='t2', expiration_time=15)
+
+        date1 = datetime(2019, 11, 28).date()  # Coffe 1 and 2 good
+        date2 = datetime(2019, 11, 20).date()  # Coffe 1 bad and 2 good
+        date3 = datetime(2019, 11, 10).date()  # Coffe 1 and 2 bad
+
+        Harvest.objects.create(farm='Fazenda Tamoatá', bags=500, date=date1,
+                               coffe_type=self.coffe_type, owner=user1)
+        Harvest.objects.create(farm='Fazenda Nápoles', bags=780, date=date1,
+                               coffe_type=coffe_type_2, owner=user1)
+        Harvest.objects.create(farm='Fazenda da alegria', bags=910, date=date2,
+                               coffe_type=self.coffe_type, owner=user1)
+        Harvest.objects.create(farm='Fazenda do Python', bags=1500, date=date2,
+                               coffe_type=coffe_type_2, owner=user1)
+        Harvest.objects.create(farm='Fazenda Pinguim', bags=235, date=date3,
+                               coffe_type=self.coffe_type, owner=user1)
+        Harvest.objects.create(farm='Fazenda São João', bags=700, date=date3,
+                               coffe_type=coffe_type_2, owner=user1)
+
+        response = self.client.get(STORAGE_REPORT_URL)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        expected_fields = (
+            'total_bags', 'non_expired_bags', 'expired_bags',
+            'origin_farms', 'coffe_types'
+        )
+
+        for field in expected_fields:
+            self.assertIn(field, response.data)
+
+        self.assertEqual(response.data.get('total_bags'), 4625)
+        self.assertEqual(response.data.get('non_expired_bags'), 2780)
+        self.assertIn('Fazenda do Python', response.data.get('origin_farms'))
+        self.assertIn('Fazenda Tamoatá', response.data.get('origin_farms'))
+        self.assertIn(self.coffe_type.id, response.data.get('coffe_types'))
+        self.assertIn(coffe_type_2.id, response.data.get('coffe_types'))
