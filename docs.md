@@ -87,6 +87,7 @@ You can use the provided credentials to access the admin interface on `https://l
 |  DELETE  |  Delete the harvest   |  |
 
 **/storage_report/**
+
 | Method |     Description             |  Parameters  |
 | ------ | --------------------------- | ------------ |
 |  GET   |  Retrieve an report with information of harvests from the current user  |              |
