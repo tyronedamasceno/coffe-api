@@ -23,3 +23,32 @@ You may want have a local superuser, so run the command below and follow instruc
 You can use the provided credentials to access the admin interface on `https://localhost:8000/admin/`.
 
 ## API Endpoints
+
+*obs: all the endpoints require a /api/v1 prefix, ex: localhost:5000/api/v1/users*
+
+*obs: the endpoints requires the header **Authentication** with value "Token <user_token>"*
+
+
+**/users**
+
+| Method |     Description             |  Parameters  |
+| ------ | --------------------------- | ------------ |
+|  GET   |  List all the users  |              |
+|  POST  |  Create a new user   | *email*, *password*, *name*  |
+
+
+**/users/{id:integer}**
+
+| Method |     Description             |  Parameters  |
+| ------ | --------------------------- | ------------ |
+|  GET   |  Retrieve the user with provided id  |              |
+|  PATCH  |  Update user information   | *email*, *password*, *name*  |
+|  DELETE  |  Delete the user   |  |
+
+**/login/**
+
+*This endpoint response body give the user_token to use on the others requests*
+
+| Method |     Description             |  Parameters  |
+| ------ | --------------------------- | ------------ |
+|  POST  |  Authenticate an user   | *email*, *password*  |
