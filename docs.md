@@ -52,3 +52,41 @@ You can use the provided credentials to access the admin interface on `https://l
 | Method |     Description             |  Parameters  |
 | ------ | --------------------------- | ------------ |
 |  POST  |  Authenticate an user   | *email*, *password*  |
+
+
+**/coffe_types**
+
+| Method |     Description             |  Parameters  |
+| ------ | --------------------------- | ------------ |
+|  GET   |  List all the coffe types  |              |
+|  POST  |  Create a new coffe type   | *name*, *expiration_time(integer:days)*  |
+
+
+**/coffe_types/{id:integer}**
+
+| Method |     Description             |  Parameters  |
+| ------ | --------------------------- | ------------ |
+|  GET   |  Retrieve coffe type with provided id  |              |
+|  PATCH  |  Update information from coffe_tyoe   | *name*, *expiration_time(integer:days)*  |
+|  DELETE  |  Delete the coffe_type   |  |
+
+
+**/harvests**
+
+| Method |     Description             |  Parameters  |
+| ------ | --------------------------- | ------------ |
+|  GET   |  List all the harvests from current user  |              |
+|  POST  |  Create a new harvest   | *farm*, *bags*, *date*, *coffe_type(id:int)*  |
+
+**/harvests/{id:integer}**
+
+| Method |     Description             |  Parameters  |
+| ------ | --------------------------- | ------------ |
+|  GET   |  Retrieve harvest with provided id  |              |
+|  PATCH  |  Update information from harvest   | *farm*, *bags*, *date*, *coffe_type(id:int)* |
+|  DELETE  |  Delete the harvest   |  |
+
+**/storage_report/**
+| Method |     Description             |  Parameters  |
+| ------ | --------------------------- | ------------ |
+|  GET   |  Retrieve an report with information of harvests from the current user  |              |
