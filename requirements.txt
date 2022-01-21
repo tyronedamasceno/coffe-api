@@ -6,7 +6,7 @@ entrypoints==0.3
 flake8==3.7.9
 freezegun==0.3.12
 ipdb==0.12.2
-ipython==7.10.0
+ipython==7.16.3
 ipython-genutils==0.2.0
 jedi==0.15.1
 mccabe==0.6.1
